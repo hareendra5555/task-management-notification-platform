@@ -34,6 +34,28 @@ This project demonstrates how to take a simple CRUD API and evolve it into a pro
 | PUT | `/api/tasks/{id}` | Update task, recompute score, publish update event |
 | DELETE | `/api/tasks/{id}` | Delete task and publish deletion event |
 | GET | `/api/tasks/notifications?count=20` | View recent notification events |
+| GET | `/api/health` | Health check endpoint for runtime monitoring |
+
+## Example API Requests
+Create task:
+
+```bash
+curl -X POST "http://localhost:8080/api/tasks" \
+  -H "Content-Type: application/json" \
+  -d "{\"title\":\"Ship Day 2 updates\",\"description\":\"Add CI and health endpoint\",\"dueDate\":\"2026-02-21T10:00:00Z\",\"isHighUrgency\":true}"
+```
+
+Get all tasks:
+
+```bash
+curl "http://localhost:8080/api/tasks"
+```
+
+Get service health:
+
+```bash
+curl "http://localhost:8080/api/health"
+```
 
 ## Local Run (Docker)
 From repository root:
@@ -71,7 +93,7 @@ dotnet run
 - Replace in-memory notification stream with message broker integration (Kafka/SQS).
 - Add SignalR push notifications for realtime task updates.
 - Add background workers for retry and dead-letter handling.
-- Add CI workflow for build/test and quality checks.
+- Expand CI into full pipeline (tests, linting, release checks).
 
 ## Attribution
 Initially bootstrapped from `B3nchi/B3nchi-ASP.NET-Core-MVC-Web-APIs---Simple-Task-Management` and then significantly refactored and extended for enterprise-style architecture and platform capabilities.
