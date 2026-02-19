@@ -28,7 +28,7 @@ This project demonstrates how to take a simple CRUD API and evolve it into a pro
 ## API Endpoints
 | Method | Endpoint | Description |
 |---|---|---|
-| GET | `/api/tasks` | Get all tasks (priority ordered, cache-aware) |
+| GET | `/api/tasks` | Get tasks with filtering and pagination |
 | GET | `/api/tasks/{id}` | Get task by id (cache-aware) |
 | POST | `/api/tasks` | Create task and publish creation event |
 | PUT | `/api/tasks/{id}` | Update task, recompute score, publish update event |
@@ -49,6 +49,12 @@ Get all tasks:
 
 ```bash
 curl "http://localhost:8080/api/tasks"
+```
+
+Filter + pagination:
+
+```bash
+curl "http://localhost:8080/api/tasks?isCompleted=false&isHighUrgency=true&search=ship&page=1&pageSize=10"
 ```
 
 Get service health:

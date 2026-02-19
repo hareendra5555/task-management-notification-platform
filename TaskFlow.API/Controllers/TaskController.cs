@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TaskFlow.API.Contracts;
@@ -31,18 +32,44 @@ public class TasksController : ControllerBase
     }
 
     [HttpGet(Name = "GetAllTasks")]
-    public async Task<IActionResult> GetAllTasks()
+    public async Task<IActionResult> GetAllTasks([FromQuery] GetTasksQuery query)
     {
-        var cachedTasks = await _taskCacheService.GetTaskListAsync();
+        var isDefaultQuery = !query.IsCompleted.HasValue
+            && !query.IsHighUrgency.HasValue
+            && string.IsNullOrWhiteSpace(query.Search);
 
-        if (cachedTasks is not null)
+        if (isDefaultQuery)
         {
-            return Ok(cachedTasks);
+            var cachedTasks = await _taskCacheService.GetTaskListAsync();
+            IReadOnlyCollection<TaskItem> allTasks;
+
+            if (cachedTasks is not null)
+            {
+                allTasks = cachedTasks;
+            }
+            else
+            {
+                var fetchedTasks = (await _unitOfWork.Tasks.GetAllOrderedAsync()).ToList();
+                await _taskCacheService.SetTaskListAsync(fetchedTasks);
+                allTasks = fetchedTasks;
+            }
+
+            var pagedItems = allTasks
+                .Skip((query.Page - 1) * query.PageSize)
+                .Take(query.PageSize)
+                .ToList();
+
+            return Ok(new PagedResponse<TaskItem>
+            {
+                Items = pagedItems,
+                Page = query.Page,
+                PageSize = query.PageSize,
+                TotalCount = allTasks.Count
+            });
         }
 
-        var tasks = (await _unitOfWork.Tasks.GetAllOrderedAsync()).ToList();
-        await _taskCacheService.SetTaskListAsync(tasks);
-        return Ok(tasks);
+        var result = await _unitOfWork.Tasks.GetPagedAsync(query);
+        return Ok(result);
     }
 
     [HttpGet("{id}")]
