@@ -34,6 +34,7 @@ This project demonstrates how to take a simple CRUD API and evolve it into a pro
 | PUT | `/api/tasks/{id}` | Update task, recompute score, publish update event |
 | DELETE | `/api/tasks/{id}` | Delete task and publish deletion event |
 | GET | `/api/tasks/notifications?count=20` | View recent notification events |
+| GET | `/api/tasks/summary` | Get aggregate task metrics (total/completed/pending/overdue) |
 | GET | `/api/health` | Health check endpoint for runtime monitoring |
 
 ## Example API Requests
@@ -54,7 +55,13 @@ curl "http://localhost:8080/api/tasks"
 Filter + pagination:
 
 ```bash
-curl "http://localhost:8080/api/tasks?isCompleted=false&isHighUrgency=true&search=ship&page=1&pageSize=10"
+curl "http://localhost:8080/api/tasks?isCompleted=false&isHighUrgency=true&search=ship&dueFrom=2026-02-20T00:00:00Z&dueTo=2026-02-28T23:59:59Z&sortBy=dueDate&sortDirection=asc&page=1&pageSize=10"
+```
+
+Get task summary:
+
+```bash
+curl "http://localhost:8080/api/tasks/summary"
 ```
 
 Get service health:
