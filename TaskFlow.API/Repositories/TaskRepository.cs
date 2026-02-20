@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -48,10 +49,9 @@ public class TaskRepository : GenericRepository<TaskItem>, ITaskRepository
 
         var totalCount = await taskQuery.CountAsync();
 
-        var items = await taskQuery
-            .OrderByDescending(x => x.PriorityScore)
-            .ThenBy(x => x.DueDate)
-            .ThenByDescending(x => x.Created)
+        var sortedQuery = ApplySorting(taskQuery, query.SortBy, query.SortDirection);
+
+        var items = await sortedQuery
             .Skip((query.Page - 1) * query.PageSize)
             .Take(query.PageSize)
             .ToListAsync();
@@ -62,6 +62,28 @@ public class TaskRepository : GenericRepository<TaskItem>, ITaskRepository
             Page = query.Page,
             PageSize = query.PageSize,
             TotalCount = totalCount
+        };
+    }
+
+    private static IQueryable<TaskItem> ApplySorting(IQueryable<TaskItem> query, string? sortBy, string? sortDirection)
+    {
+        var normalizedSortBy = sortBy?.Trim().ToLowerInvariant() ?? "priority";
+        var isAscending = string.Equals(sortDirection?.Trim(), "asc", StringComparison.OrdinalIgnoreCase);
+
+        return normalizedSortBy switch
+        {
+            "duedate" => isAscending
+                ? query.OrderBy(x => x.DueDate).ThenByDescending(x => x.PriorityScore)
+                : query.OrderByDescending(x => x.DueDate).ThenByDescending(x => x.PriorityScore),
+            "created" => isAscending
+                ? query.OrderBy(x => x.Created).ThenByDescending(x => x.PriorityScore)
+                : query.OrderByDescending(x => x.Created).ThenByDescending(x => x.PriorityScore),
+            "title" => isAscending
+                ? query.OrderBy(x => x.Title).ThenByDescending(x => x.PriorityScore)
+                : query.OrderByDescending(x => x.Title).ThenByDescending(x => x.PriorityScore),
+            _ => isAscending
+                ? query.OrderBy(x => x.PriorityScore).ThenBy(x => x.DueDate).ThenByDescending(x => x.Created)
+                : query.OrderByDescending(x => x.PriorityScore).ThenBy(x => x.DueDate).ThenByDescending(x => x.Created)
         };
     }
 }
