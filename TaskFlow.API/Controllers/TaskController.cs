@@ -36,7 +36,10 @@ public class TasksController : ControllerBase
     {
         var isDefaultQuery = !query.IsCompleted.HasValue
             && !query.IsHighUrgency.HasValue
-            && string.IsNullOrWhiteSpace(query.Search);
+            && !query.DueFrom.HasValue
+            && !query.DueTo.HasValue
+            && string.IsNullOrWhiteSpace(query.Search)
+            && IsDefaultSort(query.SortBy, query.SortDirection);
 
         if (isDefaultQuery)
         {
@@ -180,5 +183,16 @@ public class TasksController : ControllerBase
     {
         var normalizedCount = Math.Clamp(count, 1, 100);
         return Ok(_notificationService.GetRecent(normalizedCount));
+    }
+
+    private static bool IsDefaultSort(string? sortBy, string? sortDirection)
+    {
+        var isDefaultSortBy = string.IsNullOrWhiteSpace(sortBy)
+            || string.Equals(sortBy.Trim(), "priority", StringComparison.OrdinalIgnoreCase);
+
+        var isDefaultSortDirection = string.IsNullOrWhiteSpace(sortDirection)
+            || string.Equals(sortDirection.Trim(), "desc", StringComparison.OrdinalIgnoreCase);
+
+        return isDefaultSortBy && isDefaultSortDirection;
     }
 }
