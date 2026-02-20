@@ -7,6 +7,8 @@ public class GetTasksQuery
     public bool? IsCompleted { get; set; }
     public bool? IsHighUrgency { get; set; }
     public string? Search { get; set; }
+    public DateTime? DueFrom { get; set; }
+    public DateTime? DueTo { get; set; }
     public string SortBy { get; set; } = "priority";
     public string SortDirection { get; set; } = "desc";
 
