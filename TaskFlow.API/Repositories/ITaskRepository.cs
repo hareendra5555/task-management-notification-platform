@@ -9,4 +9,5 @@ public interface ITaskRepository : IGenericRepository<TaskItem>
 {
     Task<IEnumerable<TaskItem>> GetAllOrderedAsync();
     Task<PagedResponse<TaskItem>> GetPagedAsync(GetTasksQuery query);
+    Task<TaskSummaryResponse> GetSummaryAsync();
 }

@@ -75,6 +75,20 @@ public class TaskRepository : GenericRepository<TaskItem>, ITaskRepository
         };
     }
 
+    public async Task<TaskSummaryResponse> GetSummaryAsync()
+    {
+        var now = DateTime.UtcNow;
+
+        return new TaskSummaryResponse
+        {
+            TotalTasks = await _context.Tasks.CountAsync(),
+            CompletedTasks = await _context.Tasks.CountAsync(x => x.IsCompleted),
+            PendingTasks = await _context.Tasks.CountAsync(x => !x.IsCompleted),
+            HighUrgencyTasks = await _context.Tasks.CountAsync(x => x.IsHighUrgency),
+            OverdueTasks = await _context.Tasks.CountAsync(x => !x.IsCompleted && x.DueDate.HasValue && x.DueDate.Value < now)
+        };
+    }
+
     private static IQueryable<TaskItem> ApplySorting(IQueryable<TaskItem> query, string? sortBy, string? sortDirection)
     {
         var normalizedSortBy = sortBy?.Trim().ToLowerInvariant() ?? "priority";
