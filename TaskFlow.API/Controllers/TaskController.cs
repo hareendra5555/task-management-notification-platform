@@ -185,6 +185,13 @@ public class TasksController : ControllerBase
         return Ok(_notificationService.GetRecent(normalizedCount));
     }
 
+    [HttpGet("summary")]
+    public async Task<IActionResult> GetTaskSummary()
+    {
+        var summary = await _unitOfWork.Tasks.GetSummaryAsync();
+        return Ok(summary);
+    }
+
     private static bool IsDefaultSort(string? sortBy, string? sortDirection)
     {
         var isDefaultSortBy = string.IsNullOrWhiteSpace(sortBy)
