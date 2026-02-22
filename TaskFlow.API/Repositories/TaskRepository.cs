@@ -57,6 +57,16 @@ public class TaskRepository : GenericRepository<TaskItem>, ITaskRepository
             taskQuery = taskQuery.Where(x => x.DueDate.HasValue && x.DueDate.Value <= query.DueTo.Value);
         }
 
+        if (query.MinPriorityScore.HasValue)
+        {
+            taskQuery = taskQuery.Where(x => x.PriorityScore >= query.MinPriorityScore.Value);
+        }
+
+        if (query.MaxPriorityScore.HasValue)
+        {
+            taskQuery = taskQuery.Where(x => x.PriorityScore <= query.MaxPriorityScore.Value);
+        }
+
         var totalCount = await taskQuery.CountAsync();
 
         var sortedQuery = ApplySorting(taskQuery, query.SortBy, query.SortDirection);
