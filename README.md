@@ -28,7 +28,7 @@ This project demonstrates how to take a simple CRUD API and evolve it into a pro
 ## API Endpoints
 | Method | Endpoint | Description |
 |---|---|---|
-| GET | `/api/tasks` | Get tasks with filtering and pagination |
+| GET | `/api/tasks` | Get tasks with filtering, sorting, and pagination |
 | GET | `/api/tasks/{id}` | Get task by id (cache-aware) |
 | POST | `/api/tasks` | Create task and publish creation event |
 | PUT | `/api/tasks/{id}` | Update task, recompute score, publish update event |
@@ -55,13 +55,19 @@ curl "http://localhost:8080/api/tasks"
 Filter + pagination:
 
 ```bash
-curl "http://localhost:8080/api/tasks?isCompleted=false&isHighUrgency=true&search=ship&dueFrom=2026-02-20T00:00:00Z&dueTo=2026-02-28T23:59:59Z&sortBy=dueDate&sortDirection=asc&page=1&pageSize=10"
+curl "http://localhost:8080/api/tasks?isCompleted=false&isHighUrgency=true&search=ship&dueFrom=2026-02-20T00:00:00Z&dueTo=2026-02-28T23:59:59Z&createdFrom=2026-02-01T00:00:00Z&createdTo=2026-02-28T23:59:59Z&minPriorityScore=20&maxPriorityScore=100&sortBy=dueDate&sortDirection=asc&page=1&pageSize=10"
 ```
 
 Get task summary:
 
 ```bash
 curl "http://localhost:8080/api/tasks/summary"
+```
+
+Notification history (validated count query):
+
+```bash
+curl "http://localhost:8080/api/tasks/notifications?count=25"
 ```
 
 Get service health:
@@ -101,6 +107,7 @@ dotnet run
 - `Services/`: domain-level behavior (priority, cache, notifications).
 - `Middleware/`: centralized exception handling.
 - `Data/`: EF Core context and model configuration (includes useful indexes).
+- `Contracts/PagedResponse`: includes paging metadata (`totalPages`, `hasNextPage`, `hasPreviousPage`).
 
 ## Roadmap
 - Replace in-memory notification stream with message broker integration (Kafka/SQS).
