@@ -9,6 +9,8 @@ public class GetTasksQuery
     public string? Search { get; set; }
     public DateTime? DueFrom { get; set; }
     public DateTime? DueTo { get; set; }
+    public int? MinPriorityScore { get; set; }
+    public int? MaxPriorityScore { get; set; }
     public string SortBy { get; set; } = "priority";
     public string SortDirection { get; set; } = "desc";
 
