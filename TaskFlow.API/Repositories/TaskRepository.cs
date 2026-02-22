@@ -21,6 +21,7 @@ public class TaskRepository : GenericRepository<TaskItem>, ITaskRepository
     public async Task<IEnumerable<TaskItem>> GetAllOrderedAsync()
     {
         return await _context.Tasks
+            .AsNoTracking()
             .OrderByDescending(x => x.PriorityScore)
             .ThenBy(x => x.DueDate)
             .ThenByDescending(x => x.Created)
@@ -29,7 +30,9 @@ public class TaskRepository : GenericRepository<TaskItem>, ITaskRepository
 
     public async Task<PagedResponse<TaskItem>> GetPagedAsync(GetTasksQuery query)
     {
-        var taskQuery = _context.Tasks.AsQueryable();
+        var taskQuery = _context.Tasks
+            .AsNoTracking()
+            .AsQueryable();
 
         if (query.IsCompleted.HasValue)
         {
@@ -98,14 +101,15 @@ public class TaskRepository : GenericRepository<TaskItem>, ITaskRepository
     public async Task<TaskSummaryResponse> GetSummaryAsync()
     {
         var now = DateTime.UtcNow;
+        var tasksQuery = _context.Tasks.AsNoTracking();
 
         return new TaskSummaryResponse
         {
-            TotalTasks = await _context.Tasks.CountAsync(),
-            CompletedTasks = await _context.Tasks.CountAsync(x => x.IsCompleted),
-            PendingTasks = await _context.Tasks.CountAsync(x => !x.IsCompleted),
-            HighUrgencyTasks = await _context.Tasks.CountAsync(x => x.IsHighUrgency),
-            OverdueTasks = await _context.Tasks.CountAsync(x => !x.IsCompleted && x.DueDate.HasValue && x.DueDate.Value < now)
+            TotalTasks = await tasksQuery.CountAsync(),
+            CompletedTasks = await tasksQuery.CountAsync(x => x.IsCompleted),
+            PendingTasks = await tasksQuery.CountAsync(x => !x.IsCompleted),
+            HighUrgencyTasks = await tasksQuery.CountAsync(x => x.IsHighUrgency),
+            OverdueTasks = await tasksQuery.CountAsync(x => !x.IsCompleted && x.DueDate.HasValue && x.DueDate.Value < now)
         };
     }
 
