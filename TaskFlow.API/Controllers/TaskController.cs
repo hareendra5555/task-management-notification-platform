@@ -179,9 +179,9 @@ public class TasksController : ControllerBase
     }
 
     [HttpGet("notifications")]
-    public IActionResult GetRecentNotifications([FromQuery] int count = 20)
+    public IActionResult GetRecentNotifications([FromQuery] GetNotificationsQuery query)
     {
-        var normalizedCount = Math.Clamp(count, 1, 100);
+        var normalizedCount = Math.Clamp(query.Count, 1, 100);
         return Ok(_notificationService.GetRecent(normalizedCount));
     }
 
