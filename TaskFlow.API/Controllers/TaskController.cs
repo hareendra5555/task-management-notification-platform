@@ -32,6 +32,8 @@ public class TasksController : ControllerBase
     }
 
     [HttpGet(Name = "GetAllTasks")]
+    [ProducesResponseType(typeof(PagedResponse<TaskItem>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetAllTasks([FromQuery] GetTasksQuery query)
     {
         var isDefaultQuery = !query.IsCompleted.HasValue
@@ -80,6 +82,8 @@ public class TasksController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [ProducesResponseType(typeof(TaskItem), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetTask(Guid id)
     {
         var cachedTask = await _taskCacheService.GetTaskAsync(id);
@@ -100,6 +104,8 @@ public class TasksController : ControllerBase
     }
 
     [HttpPost]
+    [ProducesResponseType(typeof(TaskItem), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateTask(CreateTaskRequest request)
     {
         var task = new TaskItem
@@ -128,6 +134,9 @@ public class TasksController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> UpdateTask(Guid id, UpdateTaskRequest request)
     {
         var task = await _unitOfWork.Tasks.GetByIdAsync(id);
@@ -161,6 +170,8 @@ public class TasksController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteTask(Guid id)
     {
         var task = await _unitOfWork.Tasks.GetByIdAsync(id);
@@ -183,6 +194,8 @@ public class TasksController : ControllerBase
     }
 
     [HttpGet("notifications")]
+    [ProducesResponseType(typeof(IReadOnlyCollection<NotificationEvent>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
     public IActionResult GetRecentNotifications([FromQuery] GetNotificationsQuery query)
     {
         var normalizedCount = Math.Clamp(query.Count, 1, 100);
@@ -190,6 +203,7 @@ public class TasksController : ControllerBase
     }
 
     [HttpGet("summary")]
+    [ProducesResponseType(typeof(TaskSummaryResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetTaskSummary()
     {
         var summary = await _unitOfWork.Tasks.GetSummaryAsync();
