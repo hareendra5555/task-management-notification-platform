@@ -38,6 +38,10 @@ public class TasksController : ControllerBase
             && !query.IsHighUrgency.HasValue
             && !query.DueFrom.HasValue
             && !query.DueTo.HasValue
+            && !query.CreatedFrom.HasValue
+            && !query.CreatedTo.HasValue
+            && !query.MinPriorityScore.HasValue
+            && !query.MaxPriorityScore.HasValue
             && string.IsNullOrWhiteSpace(query.Search)
             && IsDefaultSort(query.SortBy, query.SortDirection);
 
