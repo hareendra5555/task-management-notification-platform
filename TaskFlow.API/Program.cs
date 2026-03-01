@@ -41,6 +41,14 @@ else
 // Add Database Context
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddOptions<NotificationOptions>()
+    .Bind(builder.Configuration.GetSection(NotificationOptions.SectionName))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+builder.Services.AddOptions<TaskCacheOptions>()
+    .Bind(builder.Configuration.GetSection(TaskCacheOptions.SectionName))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
 
 // Register Repositories
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
