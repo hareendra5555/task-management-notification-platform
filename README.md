@@ -132,3 +132,6 @@ dotnet run
 
 ## Attribution
 Initially bootstrapped from `B3nchi/B3nchi-ASP.NET-Core-MVC-Web-APIs---Simple-Task-Management` and then significantly refactored and extended for enterprise-style architecture and platform capabilities.
+
+## Contributing
+See `CONTRIBUTING.md` for branch, commit, and validation workflow.
