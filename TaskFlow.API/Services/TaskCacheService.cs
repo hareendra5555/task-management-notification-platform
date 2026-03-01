@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Options;
 using TaskFlow.API.Models;
 
 namespace TaskFlow.API.Services;
@@ -10,18 +11,18 @@ namespace TaskFlow.API.Services;
 public class TaskCacheService : ITaskCacheService
 {
     private const string AllTasksKey = "tasks:all";
-    private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(5);
-    private static readonly DistributedCacheEntryOptions CacheOptions = new()
-    {
-        AbsoluteExpirationRelativeToNow = CacheDuration
-    };
 
     private readonly IDistributedCache _cache;
     private readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web);
+    private readonly DistributedCacheEntryOptions _cacheOptions;
 
-    public TaskCacheService(IDistributedCache cache)
+    public TaskCacheService(IDistributedCache cache, IOptions<TaskCacheOptions> cacheOptions)
     {
         _cache = cache;
+        _cacheOptions = new DistributedCacheEntryOptions
+        {
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(cacheOptions.Value.DurationMinutes)
+        };
     }
 
     public async Task<IReadOnlyCollection<TaskItem>?> GetTaskListAsync()
@@ -33,7 +34,7 @@ public class TaskCacheService : ITaskCacheService
     public Task SetTaskListAsync(IEnumerable<TaskItem> tasks)
     {
         var json = JsonSerializer.Serialize(tasks, _jsonOptions);
-        return _cache.SetStringAsync(AllTasksKey, json, CacheOptions);
+        return _cache.SetStringAsync(AllTasksKey, json, _cacheOptions);
     }
 
     public async Task<TaskItem?> GetTaskAsync(Guid taskId)
@@ -45,7 +46,7 @@ public class TaskCacheService : ITaskCacheService
     public Task SetTaskAsync(TaskItem task)
     {
         var json = JsonSerializer.Serialize(task, _jsonOptions);
-        return _cache.SetStringAsync(GetTaskKey(task.Id), json, CacheOptions);
+        return _cache.SetStringAsync(GetTaskKey(task.Id), json, _cacheOptions);
     }
 
     public Task InvalidateTaskListAsync() => _cache.RemoveAsync(AllTasksKey);
