@@ -1,0 +1,24 @@
+@baseUrl = http://localhost:8080
+
+### Health
+GET {{baseUrl}}/api/health
+
+### Create Task
+POST {{baseUrl}}/api/tasks
+Content-Type: application/json
+
+{
+  "title": "Finalize Day 5 progress",
+  "description": "Ship meaningful final improvements",
+  "dueDate": "2026-03-01T15:00:00Z",
+  "isHighUrgency": true
+}
+
+### Get Tasks (advanced query)
+GET {{baseUrl}}/api/tasks?isCompleted=false&minPriorityScore=20&sortBy=dueDate&sortDirection=asc&page=1&pageSize=10
+
+### Get Summary
+GET {{baseUrl}}/api/tasks/summary
+
+### Get Notifications
+GET {{baseUrl}}/api/tasks/notifications?count=20
