@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using TaskFlow.API.Models;
 
 namespace TaskFlow.API.Services;
@@ -10,10 +11,12 @@ public class NotificationService : INotificationService
     private readonly ILogger<NotificationService> _logger;
     private readonly LinkedList<NotificationEvent> _events = new();
     private readonly object _gate = new();
+    private readonly int _maxRetainedEvents;
 
-    public NotificationService(ILogger<NotificationService> logger)
+    public NotificationService(ILogger<NotificationService> logger, IOptions<NotificationOptions> notificationOptions)
     {
         _logger = logger;
+        _maxRetainedEvents = notificationOptions.Value.MaxRetainedEvents;
     }
 
     public void Publish(NotificationEvent notificationEvent)
@@ -22,7 +25,7 @@ public class NotificationService : INotificationService
         {
             _events.AddFirst(notificationEvent);
 
-            while (_events.Count > 200)
+            while (_events.Count > _maxRetainedEvents)
             {
                 _events.RemoveLast();
             }
