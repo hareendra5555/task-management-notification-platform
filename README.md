@@ -22,6 +22,7 @@ This project demonstrates how to take a simple CRUD API and evolve it into a pro
 - Priority scoring engine (`IPriorityScoringService`) for ranking tasks
 - Redis cache for `GET /api/tasks` and `GET /api/tasks/{id}`
 - Notification event publishing on create/update/delete operations
+- Configurable notification retention and task cache TTL
 - Global exception middleware for consistent API error responses
 - Repository + Unit of Work patterns
 
@@ -89,6 +90,10 @@ Services:
 - SQL Server: `localhost:1433`
 - Redis: `localhost:6379`
 
+Configurable runtime settings:
+- `Notifications:MaxRetainedEvents` (default `200`)
+- `TaskCache:DurationMinutes` (default `5`)
+
 ## Local Run (Without Docker)
 1. Start SQL Server and Redis locally.
 2. Update `TaskFlow.API/appsettings.json` connection strings if needed.
@@ -108,6 +113,16 @@ dotnet run
 - `Middleware/`: centralized exception handling.
 - `Data/`: EF Core context and model configuration (includes useful indexes).
 - `Contracts/PagedResponse`: includes paging metadata (`totalPages`, `hasNextPage`, `hasPreviousPage`).
+
+## Query Validation Rules
+- `dueFrom <= dueTo`
+- `createdFrom <= createdTo`
+- `minPriorityScore <= maxPriorityScore`
+- `sortBy` must be one of `priority`, `dueDate`, `created`, `title`
+- `sortDirection` must be `asc` or `desc`
+
+## Quick Testing
+- Use `TaskFlow.API/TaskFlow.API.http` with VS Code REST Client or Rider HTTP Client for local endpoint checks.
 
 ## Roadmap
 - Replace in-memory notification stream with message broker integration (Kafka/SQS).
